@@ -1,13 +1,24 @@
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
-import { Question } from '@/constants/data';
+import { Question } from '@/types/question';
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { CheckCircle2, Text, XCircle } from 'lucide-react';
 import { CellAction } from './cell-action';
 import { CATEGORY_OPTIONS } from './options';
 
 export const columns: ColumnDef<Question>[] = [
+  {
+    id: 'date',
+    accessorKey: 'date',
+    header: ({ column }: { column: Column<Question, unknown> }) => (
+      <DataTableColumnHeader column={column} title='Date' />
+    ),
+    cell: ({ cell }) => {
+      const date = cell.getValue<Question['date']>();
+      return <div>{date ? new Date(date).toLocaleDateString() : ''}</div>;
+    }
+  },
   {
     id: 'question',
     accessorKey: 'question',
