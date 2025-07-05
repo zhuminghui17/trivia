@@ -1,0 +1,123 @@
+'use client';
+
+import { useState } from 'react';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+
+interface TriviaQuestionCardProps {
+  question: {
+    id: string;
+    question: string;
+    category: string;
+    correct_answer: string;
+  };
+  index: number;
+  total: number;
+  onAnswerSubmit?: (isCorrect: boolean) => void;
+}
+
+export function TriviaQuestionCard({
+  question,
+  index,
+  total,
+  onAnswerSubmit
+}: TriviaQuestionCardProps) {
+  const [answer, setAnswer] = useState('');
+  const [showResult, setShowResult] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
+
+  const handleSubmit = () => {
+    const correct =
+      answer.toLowerCase().trim() ===
+      question.correct_answer.toLowerCase().trim();
+    setIsCorrect(correct);
+    setShowResult(true);
+    onAnswerSubmit?.(correct);
+  };
+
+  const handleTryAgain = () => {
+    setAnswer('');
+    setShowResult(false);
+  };
+
+  return (
+    <Card className='flex h-[350px] flex-col shadow-md transition-shadow hover:shadow-lg'>
+      <CardHeader className='flex-none space-y-3'>
+        <div className='flex items-center justify-between'>
+          <Badge variant='outline' className='text-sm font-medium'>
+            {question.category}
+          </Badge>
+          <span className='text-muted-foreground text-sm'>
+            {index + 1}/{total}
+          </span>
+        </div>
+        <CardTitle className='text-lg leading-tight'>
+          {question.question}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className='flex flex-1 flex-col justify-end'>
+        <div className='space-y-3'>
+          <Input
+            placeholder='Type your answer...'
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+            disabled={showResult}
+            className='focus:ring-primary focus:ring-2 focus:ring-offset-2'
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && answer.trim() && !showResult) {
+                handleSubmit();
+              }
+            }}
+          />
+          {showResult && (
+            <div
+              className={`rounded-md p-3 transition-colors ${
+                isCorrect
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300'
+                  : 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300'
+              }`}
+            >
+              {isCorrect ? (
+                <p>Correct! 🎉</p>
+              ) : (
+                <p className='text-sm'>
+                  Incorrect. The correct answer is:{' '}
+                  <span className='font-semibold'>
+                    {question.correct_answer}
+                  </span>
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </CardContent>
+      <CardFooter className='flex-none'>
+        {!showResult ? (
+          <Button
+            className='w-full transition-colors'
+            onClick={handleSubmit}
+            disabled={!answer.trim()}
+          >
+            Submit Answer
+          </Button>
+        ) : (
+          <Button
+            className='w-full transition-colors'
+            onClick={handleTryAgain}
+            variant='outline'
+          >
+            Try Another Question
+          </Button>
+        )}
+      </CardFooter>
+    </Card>
+  );
+}
