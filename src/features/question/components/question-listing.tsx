@@ -1,4 +1,4 @@
-import { Question } from '@/constants/data';
+import { Question } from '@/types/question';
 import { fakeQuestions } from '@/constants/mock-api';
 import { searchParamsCache } from '@/lib/searchparams';
 import { QuestionTable } from './question-tables';
