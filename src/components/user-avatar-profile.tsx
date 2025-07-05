@@ -7,6 +7,7 @@ interface UserAvatarProfileProps {
     imageUrl?: string;
     fullName?: string | null;
     emailAddresses: Array<{ emailAddress: string }>;
+    isAdmin?: boolean;
   } | null;
 }
 
@@ -26,7 +27,12 @@ export function UserAvatarProfile({
 
       {showInfo && (
         <div className='grid flex-1 text-left text-sm leading-tight'>
-          <span className='truncate font-semibold'>{user?.fullName || ''}</span>
+          <div className='flex items-center gap-2'>
+            <span className='truncate font-semibold'>
+              {user?.fullName || ''}
+            </span>
+            {user?.isAdmin && <span className='truncate text-xs'>Admin</span>}
+          </div>
           <span className='truncate text-xs'>
             {user?.emailAddresses[0].emailAddress || ''}
           </span>
