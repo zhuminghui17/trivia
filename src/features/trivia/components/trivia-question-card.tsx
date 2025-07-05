@@ -1,15 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 interface TriviaQuestionCardProps {
@@ -21,32 +13,23 @@ interface TriviaQuestionCardProps {
   };
   index: number;
   total: number;
-  onAnswerSubmit?: (isCorrect: boolean) => void;
+  answer: string;
+  showResult: boolean;
+  onAnswerChange: (answer: string) => void;
 }
 
 export function TriviaQuestionCard({
   question,
   index,
   total,
-  onAnswerSubmit
+  answer,
+  showResult,
+  onAnswerChange
 }: TriviaQuestionCardProps) {
-  const [answer, setAnswer] = useState('');
-  const [showResult, setShowResult] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
-
-  const handleSubmit = () => {
-    const correct =
-      answer.toLowerCase().trim() ===
+  const isCorrect =
+    showResult &&
+    answer.toLowerCase().trim() ===
       question.correct_answer.toLowerCase().trim();
-    setIsCorrect(correct);
-    setShowResult(true);
-    onAnswerSubmit?.(correct);
-  };
-
-  const handleTryAgain = () => {
-    setAnswer('');
-    setShowResult(false);
-  };
 
   return (
     <Card className='flex h-[350px] flex-col shadow-md transition-shadow hover:shadow-lg'>
@@ -68,12 +51,20 @@ export function TriviaQuestionCard({
           <Input
             placeholder='Type your answer...'
             value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
+            onChange={(e) => onAnswerChange(e.target.value)}
             disabled={showResult}
             className='focus:ring-primary focus:ring-2 focus:ring-offset-2'
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && answer.trim() && !showResult) {
-                handleSubmit();
+              if (e.key === 'Enter' && answer.trim()) {
+                // Move focus to next input if available
+                const inputs = document.querySelectorAll('input[type="text"]');
+                const currentIndex = Array.from(inputs).indexOf(
+                  e.currentTarget
+                );
+                const nextInput = inputs[currentIndex + 1] as HTMLInputElement;
+                if (nextInput) {
+                  nextInput.focus();
+                }
               }
             }}
           />
@@ -99,25 +90,6 @@ export function TriviaQuestionCard({
           )}
         </div>
       </CardContent>
-      <CardFooter className='flex-none'>
-        {!showResult ? (
-          <Button
-            className='w-full transition-colors'
-            onClick={handleSubmit}
-            disabled={!answer.trim()}
-          >
-            Submit Answer
-          </Button>
-        ) : (
-          <Button
-            className='w-full transition-colors'
-            onClick={handleTryAgain}
-            variant='outline'
-          >
-            Try Another Question
-          </Button>
-        )}
-      </CardFooter>
     </Card>
   );
 }

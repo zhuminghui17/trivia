@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-// import Autoplay from "embla-carousel-autoplay";
 import {
   Carousel,
   CarouselContent,
@@ -21,12 +20,16 @@ interface TriviaQuestion {
 
 interface TriviaCarouselProps {
   questions: TriviaQuestion[];
-  onQuestionAnswered?: (questionId: string, isCorrect: boolean) => void;
+  answers: Record<string, string>;
+  showResults: boolean;
+  onAnswerChange: (questionId: string, answer: string) => void;
 }
 
 export function TriviaCarousel({
   questions,
-  onQuestionAnswered
+  answers,
+  showResults,
+  onAnswerChange
 }: TriviaCarouselProps) {
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
@@ -45,14 +48,6 @@ export function TriviaCarousel({
     });
   }, [api]);
 
-  const handleAnswerSubmit = (questionId: string) => (isCorrect: boolean) => {
-    onQuestionAnswered?.(questionId, isCorrect);
-    // // Move to next question after a delay
-    // setTimeout(() => {
-    //   api?.scrollNext();
-    // }, 10000);
-  };
-
   return (
     <div className='relative mx-auto w-full max-w-[90vw] px-8 xl:max-w-7xl'>
       <Carousel
@@ -63,15 +58,9 @@ export function TriviaCarousel({
           align: 'start',
           dragFree: true
         }}
-        // plugins={[
-        //   Autoplay({
-        //     delay: 10000,
-        //     stopOnInteraction: true,
-        //   }),
-        // ]}
       >
         <CarouselContent className='-ml-2 md:-ml-4'>
-          {questions.map((question, index) => (
+          {questions.map((question, idx) => (
             <CarouselItem
               key={question.id}
               className='basis-full pl-2 md:basis-1/2 md:pl-4 lg:basis-1/3'
@@ -79,9 +68,13 @@ export function TriviaCarousel({
               <div className='p-1'>
                 <TriviaQuestionCard
                   question={question}
-                  index={index}
+                  index={idx}
                   total={questions.length}
-                  onAnswerSubmit={handleAnswerSubmit(question.id)}
+                  answer={answers[question.id] || ''}
+                  showResult={showResults}
+                  onAnswerChange={(answer) =>
+                    onAnswerChange(question.id, answer)
+                  }
                 />
               </div>
             </CarouselItem>
