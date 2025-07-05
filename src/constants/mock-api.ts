@@ -4,30 +4,58 @@
 
 import { faker } from '@faker-js/faker';
 import { matchSorter } from 'match-sorter'; // For filtering
+import { Question } from '@/types/question';
 
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
-// Define the shape of Product data
-export type Product = {
-  photo_url: string;
-  name: string;
-  description: string;
-  created_at: string;
-  price: number;
-  id: number;
-  category: string;
-  updated_at: string;
-};
+// Mock trivia questions
+export const triviaQuestions = [
+  {
+    id: '1',
+    question: 'What is the capital of France?',
+    correct_answer: 'Paris',
+    category: 'Geography',
+    date: new Date()
+  },
+  {
+    id: '2',
+    question: 'Which planet is known as the Red Planet?',
+    correct_answer: 'Mars',
+    category: 'Science',
+    date: new Date()
+  },
+  {
+    id: '3',
+    question: 'Who painted the Mona Lisa?',
+    correct_answer: 'Leonardo da Vinci',
+    category: 'Art',
+    date: new Date()
+  },
+  {
+    id: '4',
+    question: 'What is the capital of Japan?',
+    correct_answer: 'Tokyo',
+    category: 'Geography',
+    date: new Date()
+  },
+  {
+    id: '5',
+    question: 'What is the capital of Japan?',
+    correct_answer: 'Tokyo',
+    category: 'Geography',
+    date: new Date()
+  }
+];
 
-// Mock product data store
-export const fakeProducts = {
-  records: [] as Product[], // Holds the list of product objects
+// Mock question data store
+export const fakeQuestions = {
+  records: [] as Question[], // Holds the list of question objects
 
   // Initialize with sample data
   initialize() {
-    const sampleProducts: Product[] = [];
-    function generateRandomProductData(id: number): Product {
+    const sampleQuestions: Question[] = [];
+    function generateRandomQuestionData(id: number): Question {
       const categories = [
         'Electronics',
         'Furniture',
@@ -41,24 +69,19 @@ export const fakeProducts = {
 
       return {
         id,
-        name: faker.commerce.productName(),
-        description: faker.commerce.productDescription(),
-        created_at: faker.date
-          .between({ from: '2022-01-01', to: '2023-12-31' })
-          .toISOString(),
-        price: parseFloat(faker.commerce.price({ min: 5, max: 500, dec: 2 })),
-        photo_url: `https://api.slingacademy.com/public/sample-products/${id}.png`,
+        question: faker.lorem.sentence(),
+        answer: faker.lorem.sentence(),
         category: faker.helpers.arrayElement(categories),
-        updated_at: faker.date.recent().toISOString()
+        date: faker.date.recent()
       };
     }
 
     // Generate remaining records
     for (let i = 1; i <= 20; i++) {
-      sampleProducts.push(generateRandomProductData(i));
+      sampleQuestions.push(generateRandomQuestionData(i));
     }
 
-    this.records = sampleProducts;
+    this.records = sampleQuestions;
   },
 
   // Get all products with optional category filtering and search
@@ -69,27 +92,27 @@ export const fakeProducts = {
     categories?: string[];
     search?: string;
   }) {
-    let products = [...this.records];
+    let questions = [...this.records];
 
     // Filter products based on selected categories
     if (categories.length > 0) {
-      products = products.filter((product) =>
-        categories.includes(product.category)
+      questions = questions.filter((question) =>
+        categories.includes(question.category)
       );
     }
 
     // Search functionality across multiple fields
     if (search) {
-      products = matchSorter(products, search, {
+      questions = matchSorter(questions, search, {
         keys: ['name', 'description', 'category']
       });
     }
 
-    return products;
+    return questions;
   },
 
   // Get paginated results with optional category filtering and search
-  async getProducts({
+  async getQuestions({
     page = 1,
     limit = 10,
     categories,
@@ -102,15 +125,15 @@ export const fakeProducts = {
   }) {
     await delay(1000);
     const categoriesArray = categories ? categories.split('.') : [];
-    const allProducts = await this.getAll({
+    const allQuestions = await this.getAll({
       categories: categoriesArray,
       search
     });
-    const totalProducts = allProducts.length;
+    const totalQuestions = allQuestions.length;
 
     // Pagination logic
     const offset = (page - 1) * limit;
-    const paginatedProducts = allProducts.slice(offset, offset + limit);
+    const paginatedQuestions = allQuestions.slice(offset, offset + limit);
 
     // Mock current time
     const currentTime = new Date().toISOString();
@@ -120,24 +143,24 @@ export const fakeProducts = {
       success: true,
       time: currentTime,
       message: 'Sample data for testing and learning purposes',
-      total_products: totalProducts,
+      total_questions: totalQuestions,
       offset,
       limit,
-      products: paginatedProducts
+      questions: paginatedQuestions
     };
   },
 
   // Get a specific product by its ID
-  async getProductById(id: number) {
+  async getQuestionById(id: number) {
     await delay(1000); // Simulate a delay
 
     // Find the product by its ID
-    const product = this.records.find((product) => product.id === id);
+    const question = this.records.find((question) => question.id === id);
 
-    if (!product) {
+    if (!question) {
       return {
         success: false,
-        message: `Product with ID ${id} not found`
+        message: `Question with ID ${id} not found`
       };
     }
 
@@ -147,11 +170,11 @@ export const fakeProducts = {
     return {
       success: true,
       time: currentTime,
-      message: `Product with ID ${id} found`,
-      product
+      message: `Question with ID ${id} found`,
+      question
     };
   }
 };
 
 // Initialize sample products
-fakeProducts.initialize();
+fakeQuestions.initialize();
