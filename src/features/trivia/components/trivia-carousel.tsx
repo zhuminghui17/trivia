@@ -80,8 +80,8 @@ export function TriviaCarousel({
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className='absolute top-1/2 left-[-60px] -translate-y-1/2' />
-        <CarouselNext className='absolute top-1/2 right-[-60px] -translate-y-1/2' />
+        <CarouselPrevious className='absolute top-1/2 left-[-50px] -translate-y-1/2' />
+        <CarouselNext className='absolute top-1/2 right-[-50px] -translate-y-1/2' />
       </Carousel>
     </div>
   );
