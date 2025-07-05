@@ -60,8 +60,8 @@ export const fakeQuestions = {
 
       return {
         id,
-        question: faker.lorem.sentence(),
-        answer: faker.lorem.sentence(),
+        question: faker.lorem.sentence(12),
+        answer: faker.lorem.words(2),
         category: faker.helpers.arrayElement(categories),
         date: faker.date.recent()
       };

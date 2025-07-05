@@ -65,6 +65,13 @@ export const columns: ColumnDef<Question>[] = [
   },
   {
     id: 'actions',
-    cell: ({ row }) => <CellAction data={row.original} />
+    cell: ({ row }) => (
+      <div className='text-right'>
+        <CellAction data={row.original} />
+      </div>
+    ),
+    enableHiding: false,
+    enableSorting: false,
+    enableColumnFilter: false
   }
 ];
