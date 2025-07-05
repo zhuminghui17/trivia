@@ -56,16 +56,7 @@ export const fakeQuestions = {
   initialize() {
     const sampleQuestions: Question[] = [];
     function generateRandomQuestionData(id: number): Question {
-      const categories = [
-        'Electronics',
-        'Furniture',
-        'Clothing',
-        'Toys',
-        'Groceries',
-        'Books',
-        'Jewelry',
-        'Beauty Products'
-      ];
+      const categories = ['Geography', 'Science', 'Art', 'History'];
 
       return {
         id,
