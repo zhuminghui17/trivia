@@ -3,7 +3,7 @@
  */
 export interface Question {
   /** Unique identifier for the question */
-  id: number;
+  id: string;
 
   /** The actual question text */
   question: string;
