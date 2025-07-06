@@ -57,7 +57,7 @@ export interface Database {
       };
       attempts: {
         Row: {
-          id: number;
+          id: string;
           user_id: string;
           question_id: string;
           user_answer: string;
@@ -65,7 +65,7 @@ export interface Database {
           created_at: string;
         };
         Insert: {
-          id?: number;
+          id?: string;
           user_id?: string;
           question_id: string;
           user_answer: string;
@@ -73,7 +73,7 @@ export interface Database {
           created_at?: string;
         };
         Update: {
-          id?: number;
+          id?: string;
           user_id?: string;
           question_id?: string;
           user_answer?: string;
@@ -83,17 +83,17 @@ export interface Database {
       };
       categories: {
         Row: {
-          id: number;
+          id: string;
           name: string;
           description: string | null;
         };
         Insert: {
-          id?: number;
+          id?: string;
           name: string;
           description?: string | null;
         };
         Update: {
-          id?: number;
+          id?: string;
           name?: string;
           description?: string | null;
         };
