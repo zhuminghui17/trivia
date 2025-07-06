@@ -1,11 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from './schema';
 import { questionsQueries } from './queries';
+import { auth } from '@clerk/nextjs/server';
 
 // Create a basic supabase client for server-side operations
 const supabaseClient = createClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  {
+    async accessToken() {
+      return (await auth()).getToken();
+    }
+  }
 );
 
 // Export the enhanced db object with queries
