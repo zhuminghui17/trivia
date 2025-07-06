@@ -146,7 +146,9 @@ export const fakeQuestions = {
     await delay(1000); // Simulate a delay
 
     // Find the product by its ID
-    const question = this.records.find((question) => question.id === id);
+    const question = this.records.find(
+      (question) => question.id === id.toString()
+    );
 
     if (!question) {
       return {
