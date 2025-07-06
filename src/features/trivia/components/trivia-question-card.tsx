@@ -9,7 +9,7 @@ interface TriviaQuestionCardProps {
     id: string;
     question: string;
     category: string;
-    correct_answer: string;
+    answer: string;
   };
   index: number;
   total: number;
@@ -28,8 +28,7 @@ export function TriviaQuestionCard({
 }: TriviaQuestionCardProps) {
   const isCorrect =
     showResult &&
-    answer.toLowerCase().trim() ===
-      question.correct_answer.toLowerCase().trim();
+    answer.toLowerCase().trim() === question.answer.toLowerCase().trim();
 
   return (
     <Card className='flex h-[350px] flex-col shadow-md transition-shadow hover:shadow-lg'>
@@ -81,9 +80,7 @@ export function TriviaQuestionCard({
               ) : (
                 <p className='text-sm'>
                   Incorrect. The correct answer is:{' '}
-                  <span className='font-semibold'>
-                    {question.correct_answer}
-                  </span>
+                  <span className='font-semibold'>{question.answer}</span>
                 </p>
               )}
             </div>
