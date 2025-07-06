@@ -19,10 +19,10 @@ export const questionsQueries = {
 
     // Apply search filter if provided
     if (search) {
-      query = query.or(`title.ilike.%${search}%,content.ilike.%${search}%`);
+      query = query.or(`question.ilike.%${search}%,answer.ilike.%${search}%`);
     }
 
-    const { data: questions, error } = await query.order('created_at', {
+    const { data: questions, error } = await query.order('date', {
       ascending: false
     });
 

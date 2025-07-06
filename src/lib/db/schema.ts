@@ -12,42 +12,24 @@ export interface Database {
       questions: {
         Row: {
           id: string;
-          created_at: string;
-          updated_at: string;
-          title: string;
-          content: string;
+          question: string;
+          answer: string;
+          date: Date;
           category: string;
-          difficulty: 'easy' | 'medium' | 'hard';
-          options: Json[];
-          correct_answer: string;
-          explanation: string | null;
-          created_by: string | null;
         };
         Insert: {
           id?: string;
-          created_at?: string;
-          updated_at?: string;
-          title: string;
-          content: string;
+          question: string;
+          answer: string;
+          date: Date;
           category: string;
-          difficulty: 'easy' | 'medium' | 'hard';
-          options: Json[];
-          correct_answer: string;
-          explanation?: string | null;
-          created_by?: string | null;
         };
         Update: {
           id?: string;
-          created_at?: string;
-          updated_at?: string;
-          title?: string;
-          content?: string;
+          question?: string;
+          answer?: string;
+          date?: Date;
           category?: string;
-          difficulty?: 'easy' | 'medium' | 'hard';
-          options?: Json[];
-          correct_answer?: string;
-          explanation?: string | null;
-          created_by?: string | null;
         };
       };
     };

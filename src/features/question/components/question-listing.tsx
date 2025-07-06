@@ -3,6 +3,7 @@ import { fakeQuestions } from '@/constants/mock-api';
 import { searchParamsCache } from '@/lib/searchparams';
 import { QuestionTable } from './question-tables';
 import { columns } from './question-tables/columns';
+import { getQuestions } from '@/lib/actions/questions';
 
 type QuestionListingPage = {};
 
@@ -14,15 +15,16 @@ export default async function QuestionListingPage({}: QuestionListingPage) {
   const categories = searchParamsCache.get('category');
 
   const filters = {
-    page,
-    limit: pageLimit,
     ...(search && { search }),
     ...(categories && { categories: categories })
   };
 
-  const data = await fakeQuestions.getQuestions(filters);
-  const totalQuestions = data.total_questions;
-  const questions: Question[] = data.questions;
+  const data = await getQuestions(
+    search || undefined,
+    categories ? [categories] : undefined
+  );
+  const totalQuestions = data.length;
+  const questions: Question[] = data;
 
   return (
     <QuestionTable
