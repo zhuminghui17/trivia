@@ -59,7 +59,7 @@ export const fakeQuestions = {
       const categories = ['Geography', 'Science', 'Art', 'History'];
 
       return {
-        id,
+        id: id.toString(),
         question: faker.lorem.sentence(12),
         answer: faker.lorem.words(2),
         category: faker.helpers.arrayElement(categories),
