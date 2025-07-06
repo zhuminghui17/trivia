@@ -3,7 +3,18 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { dark } from '@clerk/themes';
 import { useTheme } from 'next-themes';
 import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ActiveThemeProvider } from '../active-theme';
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000, // 1 minute
+      retry: 1
+    }
+  }
+});
 
 export default function Providers({
   activeThemeValue,
@@ -18,13 +29,15 @@ export default function Providers({
   return (
     <>
       <ActiveThemeProvider initialTheme={activeThemeValue}>
-        <ClerkProvider
-          appearance={{
-            baseTheme: resolvedTheme === 'dark' ? dark : undefined
-          }}
-        >
-          {children}
-        </ClerkProvider>
+        <QueryClientProvider client={queryClient}>
+          <ClerkProvider
+            appearance={{
+              baseTheme: resolvedTheme === 'dark' ? dark : undefined
+            }}
+          >
+            {children}
+          </ClerkProvider>
+        </QueryClientProvider>
       </ActiveThemeProvider>
     </>
   );
