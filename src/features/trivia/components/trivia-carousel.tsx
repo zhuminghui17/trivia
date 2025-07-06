@@ -14,7 +14,7 @@ import type { CarouselApi } from '@/components/ui/carousel';
 interface TriviaQuestion {
   id: string;
   question: string;
-  correct_answer: string;
+  answer: string;
   category: string;
 }
 
@@ -54,9 +54,10 @@ export function TriviaCarousel({
         setApi={setApi}
         className='w-full'
         opts={{
-          loop: true,
+          loop: false,
           align: 'start',
-          dragFree: true
+          dragFree: true,
+          startIndex: 0
         }}
       >
         <CarouselContent className='-ml-2 md:-ml-4'>
