@@ -1,5 +1,5 @@
 import { db } from './index';
-import type { QuestionInsert, QuestionUpdate } from './index';
+import type { AttemptInsert, QuestionInsert, QuestionUpdate } from './index';
 
 export const questionsQueries = {
   // Get questions with optional filters
@@ -88,5 +88,94 @@ export const questionsQueries = {
     }
 
     return true;
+  }
+};
+
+export const attemptsQueries = {
+  // Get all attempts
+  async getAttempts() {
+    const { data, error } = await db.client.from('attempts').select('*');
+
+    if (error) {
+      throw error;
+    }
+
+    return data || [];
+  },
+
+  // Create a new attempt
+  async createAttempt(attempt: AttemptInsert) {
+    const { data, error } = await db.client
+      .from('attempts')
+      .insert(attempt)
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  },
+
+  // Get attempts by user ID
+  async getAttemptsByUserId(userId: string) {
+    const { data, error } = await db.client
+      .from('attempts')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return data || [];
+  },
+
+  // Get attempts by question ID
+  async getAttemptsByQuestionId(questionId: string) {
+    const { data, error } = await db.client
+      .from('attempts')
+      .select('*')
+      .eq('question_id', questionId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return data || [];
+  },
+
+  // Get attempt by ID
+  async getAttemptById(id: string) {
+    const { data, error } = await db.client
+      .from('attempts')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  },
+
+  // Get user's attempts for a specific question
+  async getUserAttemptForQuestion(userId: string, questionId: string) {
+    const { data, error } = await db.client
+      .from('attempts')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('question_id', questionId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return data || [];
   }
 };

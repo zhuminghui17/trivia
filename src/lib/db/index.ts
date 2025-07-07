@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from './schema';
-import { questionsQueries } from './queries';
+import { questionsQueries, attemptsQueries } from './queries';
 import { auth } from '@clerk/nextjs/server';
 
 // Create a basic supabase client for server-side operations
@@ -17,7 +17,8 @@ const supabaseClient = createClient<Database>(
 // Export the enhanced db object with queries
 export const db = {
   client: supabaseClient,
-  questions: questionsQueries
+  questions: questionsQueries,
+  attempts: attemptsQueries
 };
 
 // Helper types for better type inference
