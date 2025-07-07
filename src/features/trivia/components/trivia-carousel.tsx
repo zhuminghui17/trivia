@@ -22,6 +22,10 @@ interface TriviaCarouselProps {
   questions: TriviaQuestion[];
   answers: Record<string, string>;
   showResults: boolean;
+  submissionResults: Record<
+    string,
+    { isCorrect: boolean; correctAnswer: string }
+  >;
   onAnswerChange: (questionId: string, answer: string) => void;
 }
 
@@ -29,6 +33,7 @@ export function TriviaCarousel({
   questions,
   answers,
   showResults,
+  submissionResults,
   onAnswerChange
 }: TriviaCarouselProps) {
   const [api, setApi] = React.useState<CarouselApi>();
@@ -73,6 +78,7 @@ export function TriviaCarousel({
                   total={questions.length}
                   answer={answers[question.id] || ''}
                   showResult={showResults}
+                  submissionResult={submissionResults[question.id]}
                   onAnswerChange={(answer) =>
                     onAnswerChange(question.id, answer)
                   }

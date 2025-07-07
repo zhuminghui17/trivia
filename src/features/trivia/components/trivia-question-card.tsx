@@ -15,6 +15,7 @@ interface TriviaQuestionCardProps {
   total: number;
   answer: string;
   showResult: boolean;
+  submissionResult?: { isCorrect: boolean; correctAnswer: string };
   onAnswerChange: (answer: string) => void;
 }
 
@@ -24,11 +25,14 @@ export function TriviaQuestionCard({
   total,
   answer,
   showResult,
+  submissionResult,
   onAnswerChange
 }: TriviaQuestionCardProps) {
-  const isCorrect =
-    showResult &&
-    answer.toLowerCase().trim() === question.answer.toLowerCase().trim();
+  // Use submission result if available, otherwise fall back to local comparison
+  const isCorrect = submissionResult
+    ? submissionResult.isCorrect
+    : showResult &&
+      answer.toLowerCase().trim() === question.answer.toLowerCase().trim();
 
   return (
     <Card className='flex h-[350px] flex-col shadow-md transition-shadow hover:shadow-lg'>
@@ -80,7 +84,9 @@ export function TriviaQuestionCard({
               ) : (
                 <p className='text-sm'>
                   Incorrect. The correct answer is:{' '}
-                  <span className='font-semibold'>{question.answer}</span>
+                  <span className='font-semibold'>
+                    {submissionResult?.correctAnswer || question.answer}
+                  </span>
                 </p>
               )}
             </div>

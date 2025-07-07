@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Heading } from '@/components/ui/heading';
 import { TriviaCarousel } from './trivia-carousel';
 import PageContainer from '@/components/layout/page-container';
@@ -10,10 +10,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CalendarDays, Sparkles } from 'lucide-react';
 import { useQuestions } from '@/hooks/use-questions';
 import GenerateQuestionsButton from '@/features/question/components/generate-questions-button';
+import {
+  submitAnswer,
+  getUserAttemptForQuestion
+} from '@/lib/actions/attempts';
+import { toast } from 'sonner';
 
 export function TriviaViewPage() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [showResults, setShowResults] = useState(false);
+  const [submissionResults, setSubmissionResults] = useState<
+    Record<string, { isCorrect: boolean; correctAnswer: string }>
+  >({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckingAttempts, setIsCheckingAttempts] = useState(false);
 
   // Get today's date
   const today = new Date().toISOString().split('T')[0];
@@ -21,8 +31,56 @@ export function TriviaViewPage() {
   // Fetch questions from database
   const { data: allQuestions, isLoading, refetch } = useQuestions();
 
-  // Filter questions for today
-  const todayQuestions = allQuestions?.filter((q) => q.date === today) || [];
+  // Filter questions for today (memoized to prevent infinite re-renders)
+  const todayQuestions = useMemo(() => {
+    return allQuestions?.filter((q) => q.date === today) || [];
+  }, [allQuestions, today]);
+
+  // Check for existing attempts once when questions are loaded
+  useEffect(() => {
+    const checkExistingAttempts = async () => {
+      if (todayQuestions.length === 0) return;
+
+      setIsCheckingAttempts(true);
+
+      try {
+        const existingAnswers: Record<string, string> = {};
+        const existingResults: Record<
+          string,
+          { isCorrect: boolean; correctAnswer: string }
+        > = {};
+        let hasAttempts = false;
+
+        // Check each question for existing attempts
+        for (const question of todayQuestions) {
+          const attempts = await getUserAttemptForQuestion(question.id);
+          if (attempts && attempts.length > 0) {
+            // Get the most recent attempt
+            const latestAttempt = attempts[0];
+            existingAnswers[question.id] = latestAttempt.user_answer;
+            existingResults[question.id] = {
+              isCorrect: latestAttempt.is_correct,
+              correctAnswer: question.answer
+            };
+            hasAttempts = true;
+          }
+        }
+
+        if (hasAttempts) {
+          setAnswers(existingAnswers);
+          setSubmissionResults(existingResults);
+          setShowResults(true);
+        }
+      } catch (error) {
+        console.error('Failed to check existing attempts:', error);
+        // Continue with fresh session if check fails
+      } finally {
+        setIsCheckingAttempts(false);
+      }
+    };
+
+    checkExistingAttempts();
+  }, [todayQuestions]);
 
   const handleAnswerChange = (questionId: string, answer: string) => {
     setAnswers((prev) => ({
@@ -31,29 +89,61 @@ export function TriviaViewPage() {
     }));
   };
 
-  const handleSubmitAll = () => {
-    setShowResults(true);
-    // Calculate results
-    Object.entries(answers).forEach(([questionId, answer]) => {
-      const question = todayQuestions.find((q) => q.id === questionId);
-      const isCorrect =
-        question?.answer.toLowerCase().trim() === answer.toLowerCase().trim();
-      console.log(
-        `Question ${questionId} answered ${isCorrect ? 'correctly' : 'incorrectly'}`
+  const handleSubmitAll = async () => {
+    setIsSubmitting(true);
+    try {
+      const results: Record<
+        string,
+        { isCorrect: boolean; correctAnswer: string }
+      > = {};
+
+      // Submit each answer to the database
+      for (const [questionId, answer] of Object.entries(answers)) {
+        const question = todayQuestions.find((q) => q.id === questionId);
+        if (question) {
+          const result = await submitAnswer(
+            questionId,
+            answer,
+            question.answer
+          );
+          results[questionId] = {
+            isCorrect: result.isCorrect,
+            correctAnswer: result.correctAnswer
+          };
+        }
+      }
+
+      setSubmissionResults(results);
+      setShowResults(true);
+
+      // Show success message with stats
+      const correctCount = Object.values(results).filter(
+        (r) => r.isCorrect
+      ).length;
+      const totalCount = Object.values(results).length;
+
+      toast.success(
+        `Answers submitted! You got ${correctCount}/${totalCount} correct.`
       );
-    });
+    } catch (error) {
+      console.error('Failed to submit answers:', error);
+      toast.error('Failed to submit answers. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleTryAgain = () => {
     setAnswers({});
     setShowResults(false);
+    setSubmissionResults({});
   };
 
   const allQuestionsAnswered = todayQuestions.every((q) =>
     answers[q.id]?.trim()
   );
 
-  if (isLoading) {
+  if (isLoading || isCheckingAttempts) {
     return (
       <PageContainer>
         <div className='flex flex-1 flex-col space-y-4'>
@@ -62,7 +152,9 @@ export function TriviaViewPage() {
           </div>
           <Separator />
           <div className='flex flex-col items-center justify-center gap-4'>
-            <p>Loading questions...</p>
+            <p>
+              {isLoading ? 'Loading questions...' : 'Checking your progress...'}
+            </p>
           </div>
         </div>
       </PageContainer>
@@ -101,7 +193,12 @@ export function TriviaViewPage() {
     <PageContainer>
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-start justify-between'>
-          <Heading title={`Trivia`} description="Today's trivia" />
+          <Heading
+            title={`Trivia`}
+            description={
+              showResults ? "Your results for today's trivia" : "Today's trivia"
+            }
+          />
         </div>
         <Separator />
         <div className='flex flex-col items-center justify-center gap-4'>
@@ -109,6 +206,7 @@ export function TriviaViewPage() {
             questions={todayQuestions}
             answers={answers}
             showResults={showResults}
+            submissionResults={submissionResults}
             onAnswerChange={handleAnswerChange}
           />
           <div className='flex w-full max-w-[90vw] justify-center px-8 xl:max-w-7xl'>
@@ -117,9 +215,9 @@ export function TriviaViewPage() {
                 className='min-w-[200px]'
                 size='lg'
                 onClick={handleSubmitAll}
-                disabled={!allQuestionsAnswered}
+                disabled={!allQuestionsAnswered || isSubmitting}
               >
-                Submit All Answers
+                {isSubmitting ? 'Submitting...' : 'Submit All Answers'}
               </Button>
             ) : (
               <Button
